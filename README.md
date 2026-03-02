@@ -1,63 +1,138 @@
+# 🎉 Fig Local Revival
 
-<p align="center">
-  <a href="https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html">
-    <picture>
-      <img src="./.github/media/amazon-q-logo.avif" alt="Amazon Q"
-        width="200px"
-      >
-    </picture>
-  </a>
-</p>
+**100% Local, Zero AWS, Pure Offline Terminal Autocomplete**
 
-<h4 align="center">
-  Amazon Q CLI brings IDE-style autocomplete and agentic capabilities to your terminal.
-</h4>
+This is a fork of [amazon-q-developer-cli](https://github.com/aws/amazon-q-developer-cli) with **all AWS/Bedrock AI dependencies removed**. It brings back the original Fig experience: fast, local, privacy-first shell autocomplete.
 
+## ✨ What Changed?
 
-<div align="center">
-  <a href="https://github.com/aws/amazon-q-developer-cli/graphs/commit-activity"><img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/aws/amazon-q-developer-cli"/></a>
-  <a href="https://github.com/aws/amazon-q-developer-cli/issues"><img alt="GitHub open issues" src="https://img.shields.io/github/issues/aws/amazon-q-developer-cli"/></a>
-</div>
+### ❌ Removed
 
+- All Amazon Q / AWS Bedrock AI functionality
+- All cloud API calls and telemetry
+- 7 AWS crates (`amzn-*`, `fig_aws_common`, `fig_api_client`)
+- 200,000+ lines of AWS SDK code
 
-<div align="center">
+### ✅ Added
 
-[![Rust Test](https://github.com/aws/amazon-q-developer-cli/actions/workflows/rust.yml/badge.svg)](https://github.com/aws/amazon-q-developer-cli/actions/workflows/rust.yml)
-[![Typos Test](https://github.com/aws/amazon-q-developer-cli/actions/workflows/typos.yml/badge.svg)](https://github.com/aws/amazon-q-developer-cli/actions/workflows/typos.yml)
-[![Typescript Test](https://github.com/aws/amazon-q-developer-cli/actions/workflows/typescript.yml/badge.svg)](https://github.com/aws/amazon-q-developer-cli/actions/workflows/typescript.yml)
-</div>
+- `fig_local_provider`: Pure Rust local suggestion engine
+- Privacy-first architecture (no network calls)
+- Lightweight binaries (no AWS SDK bloat)
 
-<p align="center">
-  <a href="https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html">
-    <picture>
-      <img src="./.github/media/amazon-q-cli-features.jpeg" alt="Amazon Q CLI Features"
-      >
-    </picture>
-  </a>
-</p>
+## 🚀 Quick Start
 
-## 😍 Features
--   🔮 [**Auto Completion**](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-autocomplete.html): IDE-style completions to hundreds of popular CLIs like `git`, `npm`, `docker`, and `aws`.
--   💬 [**Natural Language Chat**](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-chat.html): Interact with your terminal using natural language to ask questions, debug issues, or explore the codebase.
--   🧠 [**Contextual Awareness**](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-chat.html#command-line-chat-context-integration): Integrates context from your local development environment, so answers are tailored to your specific code and setup.
--   🤖 [**Agentic Execution**](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-autocomplete.html): Let Amazon Q take action: generate code, edit files, automate Git workflows, resolve merge conflicts, and more — with your permission.
+### Prerequisites
 
-## ⚡️ Installation
+- **macOS** 10.15+ (Catalina or later)
+- Xcode Command Line Tools: `xcode-select --install`
+- Rust toolchain: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 
-- **macOS**:
-  - **DMG**: [Download now](https://desktop-release.q.us-east-1.amazonaws.com/latest/Amazon%20Q.dmg)
-  - **Homebrew**: `brew install amazon-q`
-- **Linux**:
-  - [Ubuntu/Debian](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-ubuntu)
-  - [AppImage](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-appimage)
-  - [Alternative Linux builds](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-alternative-linux)
+### Installation
+
+```bash
+# Clone and build
+git clone https://github.com/YOUR_USERNAME/fig-local-revival.git
+cd fig-revival
+cargo build --release
+
+# Install binaries
+sudo cp target/release/q /usr/local/bin/fig
+sudo cp target/release/figterm /usr/local/bin/
+sudo cp target/release/fig_desktop /usr/local/bin/
+
+# Setup shell integration (ZSH)
+fig integrations install zsh
+
+# Restart your terminal
+exec zsh
+```
+
+## 🎯 Features
+
+- **Local Autocomplete**: Built-in suggestions for `git`, `npm`, `cd`, `docker`, etc.
+- **No Cloud Deps**: Works 100% offline
+- **Privacy First**: Zero telemetry, zero AWS
+- **Fast**: No network latency
+- **Original Fig UI**: Transparent overlay window with keyboard navigation
+
+## 📦 Architecture
+
+```
+Shell → figterm (PTY) → fig_proto (IPC) → fig_local_provider → fig_desktop (UI)
+```
+
+**Core Components:**
+
+- `figterm/`: Shell interceptor and PTY manager
+- `fig_local_provider/`: Local suggestion engine (NEW)
+- `fig_desktop/`: UI overlay (tao + wry webview)
+- `fig_proto/`: IPC protocol (protobuf)
+- `q_cli/`: CLI entry point
+
+## 🛠️ Development
+
+```bash
+# Build everything
+cargo build --release
+
+# Run tests
+cargo test
+
+# Build specific crate
+cargo build -p fig_local_provider
+
+# Run desktop overlay
+./target/release/fig_desktop
+```
+
+## 📝 Git History
+
+**Commits:**
+
+1. `🔪 Purge Amazon Q/AWS dependencies` - Remove all AWS crates
+2. `🛡️ Add local_provider` - Create offline suggestion engine
+3. `📚 Documentation` - README + installation guide
+
+## 🔧 Troubleshooting
+
+**Binary not found:**
+
+```bash
+# Check installation
+which fig
+ls -la /usr/local/bin/fig*
+```
+
+**Shell integration not working:**
+
+```bash
+# Reinstall integration
+fig integrations uninstall zsh
+fig integrations install zsh
+exec zsh
+```
+
+## 📜 License
+
+MIT OR Apache-2.0 (same as original project)
+
+## 🙏 Credits
+
+Based on [Amazon Q Developer CLI](https://github.com/aws/amazon-q-developer-cli), originally forked from the [Fig](https://github.com/withfig/autocomplete) project.
+
+---
+
+**⚠️ Note:** This fork removes all AI/cloud features. For AWS integration, use the [official Amazon Q CLI](https://github.com/aws/amazon-q-developer-cli).
+
+- [Ubuntu/Debian](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-ubuntu)
+- [AppImage](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-appimage)
+- [Alternative Linux builds](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-alternative-linux)
 - **Windows**:
   - Follow the discussions for
     [Windows](https://github.com/aws/q-command-line-discussions/discussions/15)
   - Or [use it on Windows with WSL](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-windows)
 - **Remote machines**
   - [Autocomplete in SSH](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-autocomplete-ssh.html)
-
 
 ## 🚀 Start Contributing
 
@@ -74,7 +149,9 @@ git clone https://github.com/aws/amazon-q-developer-cli-autocomplete.git
 ```
 
 ### 2. Setup
+
 Hassle-free setup:
+
 ```shell
 npm run setup
 ```
@@ -93,6 +170,7 @@ For Debian/Ubuntu:
 sudo apt update
 sudo apt install build-essential pkg-config jq dpkg curl wget cmake clang libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libdbus-1-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev valac libibus-1.0-dev libglib2.0-dev sqlite3 libxdo-dev protobuf-compiler
 ```
+
 ### 2. Install Rust toolchain using [Rustup](https://rustup.rs):
 
 ```shell
@@ -119,16 +197,19 @@ rustup target add aarch64-apple-darwin
 Add mise integrations to your shell:
 
 For zsh:
+
 ```shell
 echo 'eval "$(mise activate zsh)"' >> "${ZDOTDIR-$HOME}/.zshrc"
 ```
 
 For bash:
+
 ```shell
 echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 ```
 
 For fish:
+
 ```shell
 echo 'mise activate fish | source' >> ~/.config/fish/config.fish
 ```
@@ -151,9 +232,10 @@ pnpm install --ignore-scripts
 </div>
 </details>
 
-
 ### 3. Start Local Development
+
 To compile and view changes made to `q chat`:
+
 ```shell
 cargo run --bin q_cli
 ```
@@ -161,25 +243,26 @@ cargo run --bin q_cli
 > If you are working on other q commands, just append `-- <command name>`. For example, to run `q login`, you can run `cargo run --bin q_cli -- login`
 
 To run tests for the Q CLI crate:
+
 ```shell
 cargo test -p q_cli
 ```
 
 To format Rust files:
+
 ```shell
 cargo +nightly fmt
 ```
 
 To run clippy:
+
 ```shell
 cargo clippy --locked --workspace --color always -- -D warnings
 ```
 
-
-
 ### 💡 Quick Tip for Onboarding
 
-Use Q CLI to help you onboard Q CLI! 
+Use Q CLI to help you onboard Q CLI!
 
 Start a `q chat` session:
 
@@ -202,9 +285,6 @@ This enables Q to answer onboarding questions like:
 - “How do these components interact?”
 
 Great for speeding up your ramp-up and navigating the repo more effectively.
-
-
-
 
 ## 🏗️ Project Layout
 
@@ -241,9 +321,6 @@ Below is a high level architecture of how the different components of the app an
 their IPC:
 
 ![architecture](docs/assets/architecture.svg)
-
-
-
 
 ## 🛡️ Security
 
