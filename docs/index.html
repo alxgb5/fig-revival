@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Fig Local Revival - Privacy-first terminal autocomplete. 100% local, zero cloud, pure offline."
+    />
+    <title>Fig Local Revival - Privacy-First Terminal Autocomplete</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #111111;
+        --bg-tertiary: #1a1a1a;
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --border: #2a2a2a;
+        --success: #10b981;
+        --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      /* Navigation */
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        z-index: 1000;
+      }
+
+      nav .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+
+      /* Hero Section */
+      .hero {
+        padding: 12rem 0 8rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(
+          circle,
+          rgba(102, 126, 234, 0.15) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .hero h1 {
+        font-size: 4.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero .subtitle {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        margin-bottom: 3rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        cursor: pointer;
+        border: none;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+      }
+
+      .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      /* Terminal Demo */
+      .terminal {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 4rem auto;
+        max-width: 800px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .terminal-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 1rem;
+      }
+
+      .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .dot-red {
+        background: #ff5f56;
+      }
+      .dot-yellow {
+        background: #ffbd2e;
+      }
+      .dot-green {
+        background: #27c93f;
+      }
+
+      .terminal-body {
+        font-family: "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        color: #00ff00;
+      }
+
+      .terminal-line {
+        margin-bottom: 0.5rem;
+      }
+
+      .terminal-prompt {
+        color: var(--accent);
+      }
+
+      /* Features Grid */
+      .features {
+        padding: 8rem 0;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 4rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s;
+      }
+
+      .feature-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature-description {
+        color: var(--text-secondary);
+      }
+
+      /* Installation Section */
+      .installation {
+        padding: 8rem 0;
+        background: var(--bg-secondary);
+      }
+
+      .code-block {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem auto;
+        max-width: 600px;
+        font-family: "Monaco", "Courier New", monospace;
+        overflow-x: auto;
+      }
+
+      .code-block code {
+        color: var(--success);
+        font-size: 1rem;
+      }
+
+      .install-steps {
+        max-width: 800px;
+        margin: 3rem auto;
+      }
+
+      .step {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .step-content h3 {
+        margin-bottom: 0.5rem;
+      }
+
+      .step-content p {
+        color: var(--text-secondary);
+      }
+
+      /* Comparison Section */
+      .comparison {
+        padding: 8rem 0;
+      }
+
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        max-width: 900px;
+        margin: 3rem auto;
+      }
+
+      .comparison-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+      }
+
+      .comparison-card.highlight {
+        border-color: var(--success);
+        position: relative;
+      }
+
+      .comparison-card.highlight::before {
+        content: "✓ Fig Local Revival";
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--success);
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .comparison-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+      }
+
+      .comparison-list {
+        list-style: none;
+      }
+
+      .comparison-list li {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .comparison-list li:last-child {
+        border-bottom: none;
+      }
+
+      .check {
+        color: var(--success);
+        margin-right: 0.5rem;
+      }
+
+      .cross {
+        color: #ef4444;
+        margin-right: 0.5rem;
+      }
+
+      /* Footer */
+      footer {
+        padding: 4rem 0;
+        border-top: 1px solid var(--border);
+        text-align: center;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--accent);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero .subtitle {
+          font-size: 1.2rem;
+        }
+
+        .comparison-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav>
+      <div class="container">
+        <div class="logo">🎯 Fig Local Revival</div>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#install">Install</a></li>
+          <li>
+            <a
+              href="https://github.com/alexandrebrg/fig-revival"
+              target="_blank"
+              >GitHub</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h1>Terminal Autocomplete<br />Without the Cloud</h1>
+        <p class="subtitle">
+          Privacy-first, 100% local, zero telemetry. The original Fig
+          experience, revived and liberated from cloud dependencies.
+        </p>
+        <div class="cta-buttons">
+          <a href="#install" class="btn btn-primary">Get Started</a>
+          <a
+            href="https://github.com/alexandrebrg/fig-revival"
+            class="btn btn-secondary"
+            target="_blank"
+            >View on GitHub</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Terminal Demo -->
+    <div class="container">
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dot dot-red"></div>
+          <div class="terminal-dot dot-yellow"></div>
+          <div class="terminal-dot dot-green"></div>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-line">
+            <span class="terminal-prompt">$</span> git commit -m "
+            <span style="color: #ffbd2e">█</span>
+          </div>
+          <div
+            class="terminal-line"
+            style="color: var(--text-secondary); margin-left: 2rem"
+          >
+            ↓ fix: resolve merge conflict<br />
+            ↓ feat: add new feature<br />
+            ↓ docs: update README
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="container">
+        <h2 class="section-title">Why Fig Local Revival?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">Privacy First</h3>
+            <p class="feature-description">
+              Zero telemetry. Zero cloud calls. Your commands stay on your
+              machine. No data collection, no tracking, no analytics.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Lightning Fast</h3>
+            <p class="feature-description">
+              No network latency. Suggestions appear instantly because
+              everything runs locally. Pure Rust performance.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <h3 class="feature-title">Lightweight</h3>
+            <p class="feature-description">
+              Removed 200,000+ lines of cloud SDK code. Clean, minimal, focused
+              on what matters.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3 class="feature-title">100% Offline</h3>
+            <p class="feature-description">
+              Works anywhere, anytime. No internet required. Perfect for secure
+              environments and air-gapped systems.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3 class="feature-title">Original Fig UI</h3>
+            <p class="feature-description">
+              Beautiful transparent overlay window with keyboard navigation. The
+              interface you loved, preserved.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3 class="feature-title">Built for Developers</h3>
+            <p class="feature-description">
+              Autocomplete for git, npm, docker, cd, and more. Extensible with
+              custom completions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison">
+      <div class="container">
+        <h2 class="section-title">Fig Local Revival vs Others</h2>
+        <div class="comparison-grid">
+          <div class="comparison-card highlight">
+            <h3 class="comparison-title">Fig Local Revival</h3>
+            <ul class="comparison-list">
+              <li><span class="check">✓</span> 100% Local & Offline</li>
+              <li><span class="check">✓</span> Zero Telemetry</li>
+              <li><span class="check">✓</span> No Cloud Dependencies</li>
+              <li><span class="check">✓</span> Privacy First</li>
+              <li><span class="check">✓</span> Open Source</li>
+              <li><span class="check">✓</span> Fast & Lightweight</li>
+            </ul>
+          </div>
+
+          <div class="comparison-card">
+            <h3 class="comparison-title">Amazon Q / Cloud CLIs</h3>
+            <ul class="comparison-list">
+              <li><span class="cross">✗</span> Requires AWS Account</li>
+              <li><span class="cross">✗</span> Cloud-Dependent AI</li>
+              <li><span class="cross">✗</span> Data Sent to Cloud</li>
+              <li><span class="cross">✗</span> Telemetry Enabled</li>
+              <li><span class="check">✓</span> AI-Powered (Online)</li>
+              <li><span class="cross">✗</span> Network Latency</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section class="installation" id="install">
+      <div class="container">
+        <h2 class="section-title">Get Started in 60 Seconds</h2>
+
+        <div class="code-block">
+          <code
+            >git clone https://github.com/alexandrebrg/fig-revival.git<br />
+            cd fig-revival<br />
+            ./install.sh</code
+          >
+        </div>
+
+        <div class="install-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Clone & Install</h3>
+              <p>
+                Clone the repository and run the installation script. It will
+                build the binaries and set up shell integration.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Restart Your Shell</h3>
+              <p>
+                Restart your terminal or run <code>exec zsh</code> (or
+                <code>exec bash</code>) to load the integration.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Start Typing</h3>
+              <p>
+                That's it! Start typing commands and enjoy intelligent
+                autocomplete suggestions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem">
+          <a
+            href="https://github.com/alexandrebrg/fig-revival#readme"
+            class="btn btn-primary"
+            target="_blank"
+          >
+            View Full Documentation
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-links">
+          <a href="https://github.com/alexandrebrg/fig-revival" target="_blank"
+            >GitHub</a
+          >
+          <a
+            href="https://github.com/alexandrebrg/fig-revival/issues"
+            target="_blank"
+            >Issues</a
+          >
+          <a
+            href="https://github.com/alexandrebrg/fig-revival/blob/main/README.md"
+            target="_blank"
+            >Documentation</a
+          >
+        </div>
+        <p style="color: var(--text-secondary)">
+          Made with ❤️ for the terminal. Based on the original
+          <a
+            href="https://github.com/withfig/autocomplete"
+            style="color: var(--accent)"
+            >Fig</a
+          >
+          project.
+        </p>
+        <p
+          style="
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+          "
+        >
+          Privacy-first, cloud-free terminal autocomplete
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
