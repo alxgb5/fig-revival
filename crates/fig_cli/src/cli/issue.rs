@@ -5,8 +5,8 @@ use clap::Args;
 use crossterm::style::Stylize;
 use eyre::Result;
 use fig_diagnostic::Diagnostics;
+use fig_util::GITHUB_REPO_NAME;
 use fig_util::system_info::is_remote;
-use fig_util::{CLI_BINARY_NAME, GITHUB_REPO_NAME, PRODUCT_NAME};
 
 const TEMPLATE_NAME: &str = "1_bug_report_template.yml";
 
@@ -22,15 +22,8 @@ pub struct IssueArgs {
 impl IssueArgs {
     #[allow(unreachable_code)]
     pub async fn execute(&self) -> Result<ExitCode> {
-        // Check if fig is running
-        if !(self.force || is_remote() || crate::util::desktop::desktop_app_running()) {
-            println!(
-                "\n→ {PRODUCT_NAME} is not running.\n  Please launch {PRODUCT_NAME} with {} or run {} to create the issue anyways",
-                format!("{CLI_BINARY_NAME} launch").magenta(),
-                format!("{CLI_BINARY_NAME} issue --force").magenta()
-            );
-            return Ok(ExitCode::FAILURE);
-        }
+        // Fig Local Revival doesn't require a desktop app, so we skip the running check
+        // and proceed directly to creating the GitHub issue
 
         let joined_description = self.description.join(" ").trim().to_owned();
 

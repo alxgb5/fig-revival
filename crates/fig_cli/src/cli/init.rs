@@ -261,7 +261,8 @@ async fn shell_init(shell: &Shell, when: &When, rcfile: &Option<String>) -> Resu
             let prompt_count = prompt_count.unwrap_or_default();
             if prompt_count < 1 {
                 let _ = fig_settings::state::set_value(key, prompt_count + 1);
-                to_source.push(inline_prompt_code(*shell));
+                // Disabled: We don't have AI-powered inline completions (AWS Bedrock removed)
+                // to_source.push(inline_prompt_code(*shell));
             }
         }
     }
@@ -310,14 +311,15 @@ fn input_method_prompt_code(shell: Shell, terminal: &Terminal) -> String {
     )
 }
 
+#[allow(dead_code)]
 fn inline_prompt_code(shell: Shell) -> String {
     guard_source(
         &shell,
         false,
-        "Q_INLINE_PROMPT",
+        "FIG_INLINE_PROMPT",
         GuardAssignment::AfterSourcing,
         format!(
-            "printf '\\n{PRODUCT_NAME} now supports AI-powered inline completions!\\n\\nTo disable run: {}\\n\\n'\n",
+            "printf '\\n{PRODUCT_NAME} now supports inline completions!\\n\\nTo disable run: {}\\n\\n'\n",
             format!("{CLI_BINARY_NAME} inline disable").magenta()
         ),
     )
@@ -328,10 +330,10 @@ fn login_prompt_code(shell: Shell) -> String {
     guard_source(
         &shell,
         false,
-        "Q_LOGIN_PROMPT",
+        "FIG_LOGIN_PROMPT",
         GuardAssignment::AfterSourcing,
         format!(
-            "printf '\\nRun {} to log back into {PRODUCT_NAME}. Logging back in allows you to use AI features such as inline completions, {}, and {}\\n\\n'\n",
+            "printf '\\nRun {} to log back into {PRODUCT_NAME}. Logging back in allows you to use features such as {}, and {}\\n\\n'\n",
             format!("{CLI_BINARY_NAME} login").magenta(),
             format!("{CLI_BINARY_NAME} translate").magenta(),
             format!("{CLI_BINARY_NAME} chat").magenta()
