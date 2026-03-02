@@ -30,7 +30,7 @@ use fig_os_shim::{Context, Env, Os};
 use fig_proto::local::DiagnosticsResponse;
 use fig_settings::JsonStore;
 use fig_util::directories::{remote_socket_path, settings_path};
-use fig_util::env_var::{PROCESS_LAUNCHED_BY_Q, Q_PARENT, Q_TERM, QTERM_SESSION_ID};
+use fig_util::env_var::{PROCESS_LAUNCHED_BY_Q, Q_PARENT, QTERM_SESSION_ID};
 use fig_util::macos::BUNDLE_CONTENTS_INFO_PLIST_PATH;
 use fig_util::system_info::SupportLevel;
 use fig_util::terminal::in_special_terminal;
@@ -619,6 +619,15 @@ impl DoctorCheck for FigIntegrationsCheck {
         //    });
         //}
 
+        // CLI-only mode: figterm check disabled
+        // In CLI-only mode, we don't require figterm to be running.
+        // The shell integrations provide basic autocomplete functionality without the PTY wrapper.
+        // TODO: Re-enable this check once figterm is rebuilt without AWS dependencies
+
+        // Skip figterm check - return OK for CLI-only mode
+        return Ok(());
+
+        /* Original figterm check - disabled for now
         match fig_os_shim::Env::new().q_term().as_deref() {
             Ok(env!("CARGO_PKG_VERSION")) => Ok(()),
             Ok(ver) if env!("CARGO_PKG_VERSION").ends_with("-dev") || ver.ends_with("-dev") => Err(doctor_warning!(
@@ -626,7 +635,7 @@ impl DoctorCheck for FigIntegrationsCheck {
             )),
             Ok(_) => Err(DoctorError::Error {
                 reason: "This terminal is not running with the latest integration, please restart your terminal".into(),
-                info: vec![format!("{Q_TERM}={}", fig_os_shim::Env::new().q_term().unwrap_or_default()).into()],
+                info: vec![format!("{FIG_TERM}={}", fig_os_shim::Env::new().q_term().unwrap_or_default()).into()],
                 fix: None,
                 error: None,
             }),
@@ -635,11 +644,12 @@ impl DoctorCheck for FigIntegrationsCheck {
                     "{PTY_BINARY_NAME} is not running in this terminal, please try restarting your terminal"
                 )
                 .into(),
-                info: vec![format!("{Q_TERM}={}", fig_os_shim::Env::new().q_term().unwrap_or_default()).into()],
+                info: vec![format!("{FIG_TERM}={}", fig_os_shim::Env::new().q_term().unwrap_or_default()).into()],
                 fix: None,
                 error: None,
             }),
         }
+        */
     }
 }
 
