@@ -15,11 +15,13 @@ default = []
 wayland = ["arboard/wayland-data-control"]
 
 [dependencies]
-amzn-codewhisperer-client.workspace = true
-amzn-codewhisperer-streaming-client.workspace = true
+# AWS deps removed - local only
+# amzn-codewhisperer-client.workspace = true
+# amzn-codewhisperer-streaming-client.workspace = true
 anstream.workspace = true
 appkit-nsworkspace-bindings.workspace = true
 arboard = { version = "3.5.0", default-features = false }
+anyhow.workspace = true
 async-trait.workspace = true
 base64.workspace = true
 bitflags.workspace = true
@@ -35,7 +37,7 @@ crossterm.workspace = true
 ctrlc = "3.4.6"
 dialoguer = { version = "0.11.0", features = ["fuzzy-select"] }
 eyre.workspace = true
-fig_api_client.workspace = true
+# fig_api_client removed - AWS purged
 fig_auth.workspace = true
 fig_diagnostic.workspace = true
 fig_install.workspace = true

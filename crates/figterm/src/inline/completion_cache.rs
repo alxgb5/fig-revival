@@ -1,7 +1,4 @@
-use radix_trie::{
-    Trie,
-    TrieCommon,
-};
+use radix_trie::{Trie, TrieCommon};
 
 #[derive(Debug, Clone, Default)]
 pub struct CompletionCache {

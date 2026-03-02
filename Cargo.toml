@@ -51,7 +51,7 @@ crossterm = { version = "0.28.1", features = ["event-stream", "events"] }
 dashmap = "6.0.1"
 dirs = "5.0.0"
 eyre = "0.6.8"
-fig_api_client = { path = "crates/fig_api_client" }
+fig_api_client = { path = "crates/fig_api_client" }  # REMOVED - replaced by fig_local_provider
 fig_auth = { path = "crates/fig_auth" }
 # fig_aws_common removed - AWS purged
 fig_desktop_api = { path = "crates/fig_desktop_api" }
@@ -59,6 +59,7 @@ fig_diagnostic = { path = "crates/fig_diagnostic" }
 fig_install = { path = "crates/fig_install" }
 fig_integrations = { path = "crates/fig_integrations" }
 fig_ipc = { path = "crates/fig_ipc" }
+fig_local_provider = { path = "crates/fig_local_provider" }
 fig_log = { path = "crates/fig_log" }
 fig_os_shim = { path = "crates/fig_os_shim" }
 fig_proto = { path = "crates/fig_proto" }

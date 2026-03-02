@@ -8,10 +8,10 @@ version.workspace = true
 license.workspace = true
 
 [dependencies]
-amzn-codewhisperer-client = { path = "../amzn-codewhisperer-client" }
-amzn-toolkit-telemetry-client = { path = "../amzn-toolkit-telemetry-client" }
+# amzn-codewhisperer-client = { path = "../amzn-codewhisperer-client" } - removed
+# amzn-toolkit-telemetry-client = { path = "../amzn-toolkit-telemetry-client" } - removed
 async-trait.workspace = true
-aws-toolkit-telemetry-definitions = { path = "../aws-toolkit-telemetry-definitions" }
+# aws-toolkit-telemetry-definitions = { path = "../aws-toolkit-telemetry-definitions" } - removed
 fig_util.workspace = true
 serde.workspace = true
 strum.workspace = true

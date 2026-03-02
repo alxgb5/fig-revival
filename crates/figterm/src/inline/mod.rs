@@ -3,54 +3,27 @@ mod validate;
 
 use std::fmt::Write;
 use std::sync::LazyLock;
-use std::time::{
-    Duration,
-    Instant,
-    SystemTime,
-};
+use std::time::{Duration, Instant, SystemTime};
 
-use fig_api_client::Client;
-use fig_api_client::clients::FILE_CONTEXT_LEFT_FILE_CONTENT_MAX_LEN;
-use fig_api_client::model::{
-    FileContext,
-    LanguageName,
-    ProgrammingLanguage,
-    RecommendationsInput,
-};
+// AWS API client removed - using local provider
+use fig_local_provider::LocalProvider;
 use fig_proto::figterm::figterm_response_message::Response as FigtermResponse;
 use fig_proto::figterm::{
-    FigtermResponseMessage,
-    InlineShellCompletionAcceptRequest,
-    InlineShellCompletionRequest,
-    InlineShellCompletionResponse,
-    InlineShellCompletionSetEnabledRequest,
+    FigtermResponseMessage, InlineShellCompletionAcceptRequest, InlineShellCompletionRequest,
+    InlineShellCompletionResponse, InlineShellCompletionSetEnabledRequest,
 };
 use fig_settings::history::CommandInfo;
-use fig_telemetry::{
-    AppTelemetryEvent,
-    SuggestionState,
-};
+use fig_telemetry::{AppTelemetryEvent, SuggestionState};
 use fig_util::Shell;
-use fig_util::terminal::{
-    current_terminal,
-    current_terminal_version,
-};
+use fig_util::terminal::{current_terminal, current_terminal_version};
 use flume::Sender;
 use regex::Regex;
 use tokio::sync::Mutex;
-use tracing::{
-    error,
-    info,
-    warn,
-};
+use tracing::{error, info, warn};
 use validate::validate;
 
 use self::completion_cache::CompletionCache;
-use crate::history::{
-    self,
-    HistoryQueryParams,
-    HistorySender,
-};
+use crate::history::{self, HistoryQueryParams, HistorySender};
 
 const HISTORY_COUNT_DEFAULT: usize = 49;
 const DEBOUNCE_DURATION_DEFAULT: Duration = Duration::from_millis(300);
@@ -196,9 +169,8 @@ pub async fn handle_request(
     let now = SystemTime::now();
     LAST_RECEIVED.lock().await.replace(now);
 
-    let Ok(client) = Client::new().await else {
-        return;
-    };
+    // Local provider - no AWS client needed
+    let provider = LocalProvider::new();
 
     for _ in 0..3 {
         tokio::time::sleep(*DEBOUNCE_DURATION).await;
@@ -221,124 +193,60 @@ pub async fn handle_request(
             return;
         }
 
-        info!("Sending inline_shell_completion completion request");
+        info!("Sending inline_shell_completion completion request (local)");
 
-        let (history_query_tx, history_query_rx) = flume::bounded(1);
-        if let Err(err) = history_sender
-            .send_async(history::HistoryCommand::Query(
-                HistoryQueryParams { limit: *HISTORY_COUNT },
-                history_query_tx,
-            ))
-            .await
-        {
-            error!(%err, "Failed to send history query");
-        }
+        let start_instant = Instant::now();
 
-        let history = match history_query_rx.recv_async().await {
-            Ok(Some(history)) => history,
-            err => {
-                error!(?err, "Failed to get history");
+        // Generate local suggestions
+        let suggestions = match provider.generate_suggestions(buffer) {
+            Ok(s) => s,
+            Err(err) => {
+                error!(%err, "Failed to generate local suggestions");
                 vec![]
             },
         };
 
-        let Some(prompt) = prompt(&history, buffer) else {
-            return;
-        };
+        let insert_text = if let Some(first_suggestion) = suggestions.first() {
+            let completion = first_suggestion.text.clone();
+            let full_text = format!("{buffer}{completion}");
+            let valid = validate(&full_text);
+            let is_empty = completion.is_empty();
 
-        let input = RecommendationsInput {
-            file_context: FileContext {
-                left_file_content: prompt,
-                right_file_content: "".into(),
-                filename: "history.sh".into(),
-                programming_language: ProgrammingLanguage {
-                    language_name: LanguageName::Shell,
-                },
-            },
-            max_results: 1,
-            next_token: None,
-        };
+            if valid && !is_empty {
+                COMPLETION_CACHE.lock().await.insert(full_text, 0.0);
+            }
 
-        let start_instant = Instant::now();
+            let suggestion_state = match (valid, completion.is_empty()) {
+                (true, true) => SuggestionState::Empty,
+                (true, false) => SuggestionState::Accept,
+                (false, _) => SuggestionState::Discard,
+            };
 
-        let response = match client.generate_recommendations(input).await {
-            Err(err) if err.is_throttling_error() => {
-                warn!(%err, "Too many requests, trying again in 1 second");
-                tokio::time::sleep(Duration::from_secs(1).saturating_sub(*DEBOUNCE_DURATION)).await;
-                continue;
-            },
-            other => other,
-        };
-
-        let insert_text = match response {
-            Ok(output) => {
-                let request_id = output.request_id.unwrap_or_default();
-                let session_id = output.session_id.unwrap_or_default();
-                let recommendations = output.recommendations;
-                let number_of_recommendations = recommendations.len() as i32;
-                let mut completion_cache = COMPLETION_CACHE.lock().await;
-
-                let mut completions = recommendations
-                    .into_iter()
-                    .map(|choice| clean_completion(&choice.content).clone())
-                    .collect::<Vec<_>>();
-
-                // skips the first one which we will recommend, we only cache the rest
-                for completion in completions.iter().skip(1) {
-                    let full_text = format!("{buffer}{completion}");
-                    if !completion.is_empty() && validate(&full_text) {
-                        completion_cache.insert(full_text, 1.0);
-                    }
-                }
-
-                // now deals with the first recommendation
-                if let Some(completion) = completions.first_mut() {
-                    let full_text = format!("{buffer}{completion}");
-                    let valid = validate(&full_text);
-                    let is_empty = completion.is_empty();
-
-                    if valid && !is_empty {
-                        completion_cache.insert(full_text, 0.0);
-                    }
-
-                    let suggestion_state = match (valid, completion.is_empty()) {
-                        (true, true) => SuggestionState::Empty,
-                        (true, false) => SuggestionState::Accept,
-                        (false, _) => SuggestionState::Discard,
-                    };
-
-                    tokio::spawn({
-                        let completion = completion.clone();
-                        let buffer = buffer.to_owned();
-                        async move {
-                            let mut queue = TELEMETRY_QUEUE.lock().await;
-                            queue.items.push(TelemetryQueueItem {
-                                suggested_chars_len: completion.chars().count() as i32,
-                                number_of_recommendations,
-                                suggestion: completion,
-                                timestamp: SystemTime::now(),
-                                session_id,
-                                request_id,
-                                latency: start_instant.elapsed(),
-                                suggestion_state,
-                                edit_buffer_len: buffer.chars().count().try_into().ok(),
-                                buffer,
-                            });
-                            // flush all but 4 messages, this is to retain messages that might have
-                            // an accept waiting
-                            queue.send_all_items(Some(4)).await;
-                        }
+            // Telemetry for local completions
+            tokio::spawn({
+                let completion = completion.clone();
+                let buffer = buffer.to_owned();
+                async move {
+                    let mut queue = TELEMETRY_QUEUE.lock().await;
+                    queue.items.push(TelemetryQueueItem {
+                        suggested_chars_len: completion.chars().count() as i32,
+                        number_of_recommendations: 1,
+                        suggestion: completion,
+                        timestamp: SystemTime::now(),
+                        session_id: "local".to_string(),
+                        request_id: "local".to_string(),
+                        latency: start_instant.elapsed(),
+                        suggestion_state,
+                        edit_buffer_len: buffer.chars().count().try_into().ok(),
+                        buffer,
                     });
-
-                    if valid { Some(std::mem::take(completion)) } else { None }
-                } else {
-                    None
+                    queue.send_all_items(Some(4)).await;
                 }
-            },
-            Err(err) => {
-                error!(%err, "Failed to get inline_shell_completion completion");
-                None
-            },
+            });
+
+            if valid && !is_empty { Some(completion) } else { None }
+        } else {
+            None
         };
 
         info!(?insert_text, "Got inline_shell_completion completion");
@@ -422,12 +330,7 @@ fn clean_completion(response: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use fig_settings::history::{
-        HistoryColumn,
-        Order,
-        OrderBy,
-        WhereExpression,
-    };
+    use fig_settings::history::{HistoryColumn, Order, OrderBy, WhereExpression};
 
     use super::*;
 
