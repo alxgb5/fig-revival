@@ -12,30 +12,20 @@ members = [
 default-members = ["crates/q_cli"]
 
 [workspace.package]
-authors = [
-    "Amazon Q CLI Team (q-cli@amazon.com)",
-    "Chay Nabors (nabochay@amazon.com)",
-    "Brandon Kiser (bskiser@amazon.com)",
-]
+authors = ["Fig Local Revival Contributors"]
 edition = "2024"
-homepage = "https://aws.amazon.com/q/"
+homepage = "https://github.com/fig-revival"
 publish = false
-version = "1.19.7"
+version = "1.0.0-local"
 license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
-amzn-codewhisperer-client = { path = "crates/amzn-codewhisperer-client" }
-amzn-codewhisperer-streaming-client = { path = "crates/amzn-codewhisperer-streaming-client" }
-amzn-consolas-client = { path = "crates/amzn-consolas-client" }
-amzn-qdeveloper-streaming-client = { path = "crates/amzn-qdeveloper-streaming-client" }
+# AWS crates removed - local-only version
 anstream = "0.6.13"
 anyhow = "1.0.98"
 appkit-nsworkspace-bindings = { path = "crates/macos-utils/appkit-nsworkspace-bindings" }
 assert_cmd = "2.0.17" # This version is required for musl builds to succeed
 async-trait = "0.1.87"
-aws-smithy-runtime-api = "1.6.1"
-aws-smithy-types = "1.2.10"
-aws-types = "1.3.0"
 base64 = "0.22.1"
 block2 = "0.5.1"
 bytes = "1.10.1"
@@ -63,7 +53,7 @@ dirs = "5.0.0"
 eyre = "0.6.8"
 fig_api_client = { path = "crates/fig_api_client" }
 fig_auth = { path = "crates/fig_auth" }
-fig_aws_common = { path = "crates/fig_aws_common" }
+# fig_aws_common removed - AWS purged
 fig_desktop_api = { path = "crates/fig_desktop_api" }
 fig_diagnostic = { path = "crates/fig_diagnostic" }
 fig_install = { path = "crates/fig_install" }
