@@ -26,7 +26,7 @@ fi
 
 # Build release binaries
 echo "🔨 Building release binaries (this may take a few minutes)..."
-cargo build --release --bin fig_cli 2>&1 | grep -E "(Compiling|Finished|error)" || true
+cargo build --release --bin fig_cli -q 2>&1 | grep -E "(error|warning:)" || true
 
 if [ ! -f "target/release/fig_cli" ]; then
     echo "❌ Build failed. Check errors above."
@@ -34,30 +34,48 @@ if [ ! -f "target/release/fig_cli" ]; then
 fi
 
 # Install binaries
-echo "📦 Installing binaries to /usr/local/bin..."
+echo "📦 Installing binary to /usr/local/bin..."
 sudo cp target/release/fig_cli /usr/local/bin/fig
-sudo cp target/release/figterm /usr/local/bin/ 2>/dev/null || echo "⚠️  figterm not built yet"
-sudo cp target/release/fig_desktop /usr/local/bin/ 2>/dev/null || echo "⚠️  fig_desktop not built yet"
 
 # Detect shell
 SHELL_TYPE=$(basename "$SHELL")
+SHELL_RC=""
 
-# Install shell integration
-echo "🔗 Installing $SHELL_TYPE integration..."
 case "$SHELL_TYPE" in
     zsh)
-        /usr/local/bin/fig integrations install zsh || echo "⚠️  Integration install failed"
+        SHELL_RC="$HOME/.zshrc"
         ;;
     bash)
-        /usr/local/bin/fig integrations install bash || echo "⚠️  Integration install failed"
+        SHELL_RC="$HOME/.bashrc"
         ;;
     fish)
-        /usr/local/bin/fig integrations install fish || echo "⚠️  Integration install failed"
+        SHELL_RC="$HOME/.config/fish/config.fish"
+        echo "⚠️  Fish shell integration needs manual setup. See README.md"
         ;;
     *)
-        echo "⚠️  Unsupported shell: $SHELL_TYPE"
+        echo "⚠️  Unsupported shell: $SHELL_TYPE. Only zsh and bash are supported."
+        SHELL_RC=""
         ;;
 esac
+
+# Add shell integration to rc file
+if [ -n "$SHELL_RC" ] && [ "$SHELL_TYPE" != "fish" ]; then
+    echo "🔗 Adding $SHELL_TYPE integration to $SHELL_RC..."
+    
+    # Check if already installed
+    if grep -q "fig init $SHELL_TYPE" "$SHELL_RC" 2>/dev/null; then
+        echo "✓ Integration already present in $SHELL_RC"
+    else
+        # Backup original rc file
+        cp "$SHELL_RC" "$SHELL_RC.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
+        
+        # Add fig integration
+        echo "" >> "$SHELL_RC"
+        echo "# Fig Local Revival - Terminal Autocomplete" >> "$SHELL_RC"
+        echo "eval \"\$(fig init $SHELL_TYPE post)\"" >> "$SHELL_RC"
+        echo "✓ Integration added to $SHELL_RC"
+    fi
+fi
 
 echo ""
 echo "✅ Installation complete!"

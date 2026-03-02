@@ -81,7 +81,7 @@ pub enum Processes {
     App,
 }
 
-/// The Amazon Q CLI
+/// The Fig CLI
 #[deny(missing_docs)]
 #[derive(Debug, PartialEq, Subcommand)]
 pub enum CliRootCommands {
@@ -97,14 +97,14 @@ pub enum CliRootCommands {
     /// Setup cli components
     #[command(alias("install"))]
     Setup(internal::InstallArgs),
-    /// Uninstall Amazon Q
+    /// Uninstall Fig
     #[command(hide = true)]
     Uninstall {
         /// Force uninstall
         #[arg(long, short = 'y')]
         no_confirm: bool,
     },
-    /// Update the Amazon Q application
+    /// Update the Fig application
     #[command(alias("upgrade"))]
     Update(update::UpdateArgs),
     /// Run diagnostic tests
@@ -224,19 +224,18 @@ impl CliRootCommands {
 
 const HELP_TEXT: &str = color_print::cstr! {"
 
-<magenta,em>q</magenta,em> (Amazon Q CLI)
+<magenta,em>fig</magenta,em> (Fig Local Revival)
 
-<magenta,em>Popular Subcommands</magenta,em>              <black!><em>Usage:</em> q [subcommand]</black!>
+<magenta,em>Popular Subcommands</magenta,em>              <black!><em>Usage:</em> fig [subcommand]</black!>
 ╭────────────────────────────────────────────────────╮
-│ <em>chat</em>         <black!>Chat with Amazon Q</black!>                    │
-│ <em>translate</em>    <black!>Natural Language to Shell translation</black!> │
+│ <em>init</em>         <black!>Setup shell integration</black!>                │
 │ <em>doctor</em>       <black!>Debug installation issues</black!>             │ 
 │ <em>settings</em>     <black!>Customize appearance & behavior</black!>       │
 │ <em>quit</em>         <black!>Quit the app</black!>                          │
 ╰────────────────────────────────────────────────────╯
 
 <black!>To see all subcommands, use:</black!>
- <black!>❯</black!> q --help-all
+ <black!>❯</black!> fig --help-all
 ㅤ
 "};
 
