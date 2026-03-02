@@ -62,6 +62,14 @@ esac
 if [ -n "$SHELL_RC" ] && [ "$SHELL_TYPE" != "fish" ]; then
     echo "🔗 Adding $SHELL_TYPE integration to $SHELL_RC..."
     
+    # For bash, also handle .profile for pre integration
+    PROFILE_FILE=""
+    if [ "$SHELL_TYPE" = "bash" ]; then
+        PROFILE_FILE="$HOME/.profile"
+    elif [ "$SHELL_TYPE" = "zsh" ]; then
+        PROFILE_FILE="$HOME/.zprofile"
+    fi
+    
     # Check if already installed
     if grep -q "fig init $SHELL_TYPE" "$SHELL_RC" 2>/dev/null; then
         echo "✓ Integration already present in $SHELL_RC"
@@ -69,11 +77,32 @@ if [ -n "$SHELL_RC" ] && [ "$SHELL_TYPE" != "fish" ]; then
         # Backup original rc file
         cp "$SHELL_RC" "$SHELL_RC.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
         
-        # Add fig integration
+        # Add fig post integration to RC file
         echo "" >> "$SHELL_RC"
-        echo "# Fig Local Revival - Terminal Autocomplete" >> "$SHELL_RC"
+        echo "# Fig Local Revival - Terminal Autocomplete (Post)" >> "$SHELL_RC"
         echo "eval \"\$(fig init $SHELL_TYPE post)\"" >> "$SHELL_RC"
-        echo "✓ Integration added to $SHELL_RC"
+        echo "✓ Post integration added to $SHELL_RC"
+    fi
+    
+    # Add pre integration to profile file if it exists
+    if [ -n "$PROFILE_FILE" ]; then
+        if grep -q "fig init $SHELL_TYPE pre" "$PROFILE_FILE" 2>/dev/null; then
+            echo "✓ Pre integration already present in $PROFILE_FILE"
+        else
+            # Create profile file if it doesn't exist
+            touch "$PROFILE_FILE" 2>/dev/null || true
+            
+            # Backup if file exists and has content
+            if [ -s "$PROFILE_FILE" ]; then
+                cp "$PROFILE_FILE" "$PROFILE_FILE.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
+            fi
+            
+            # Add fig pre integration
+            echo "" >> "$PROFILE_FILE"
+            echo "# Fig Local Revival - Terminal Autocomplete (Pre)" >> "$PROFILE_FILE"
+            echo "eval \"\$(fig init $SHELL_TYPE pre)\"" >> "$PROFILE_FILE"
+            echo "✓ Pre integration added to $PROFILE_FILE"
+        fi
     fi
 fi
 
