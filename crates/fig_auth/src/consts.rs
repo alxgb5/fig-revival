@@ -1,8 +1,9 @@
-use aws_types::region::Region;
+// aws_types removed - local only
 
-pub(crate) const CLIENT_NAME: &str = "Amazon Q Developer for command line";
+pub(crate) const CLIENT_NAME: &str = "Fig Local Revival";
 
-pub const OIDC_BUILDER_ID_REGION: Region = Region::from_static("us-east-1");
+// Region removed (no AWS SDK)
+pub const OIDC_BUILDER_ID_REGION: &str = "us-east-1";
 
 /// The scopes requested for OIDC
 ///

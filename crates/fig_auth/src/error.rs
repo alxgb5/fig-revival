@@ -9,6 +9,8 @@ pub enum Error {
     Generic(String),
     Io(std::io::Error),
     Settings(fig_settings::Error),
+    Security(String),
+    Utf8(std::str::Utf8Error),
 }
 
 impl fmt::Display for Error {
@@ -17,6 +19,8 @@ impl fmt::Display for Error {
             Error::Generic(msg) => write!(f, "Auth error: {}", msg),
             Error::Io(err) => write!(f, "IO error: {}", err),
             Error::Settings(err) => write!(f, "Settings error: {}", err),
+            Error::Security(msg) => write!(f, "Security error: {}", msg),
+            Error::Utf8(err) => write!(f, "UTF-8 error: {}", err),
         }
     }
 }
@@ -44,5 +48,31 @@ impl From<std::io::Error> for Error {
 impl From<fig_settings::Error> for Error {
     fn from(err: fig_settings::Error) -> Self {
         Error::Settings(err)
+    }
+}
+
+impl From<fig_settings::error::DbOpenError> for Error {
+    fn from(err: fig_settings::error::DbOpenError) -> Self {
+        Error::Generic(format!("Database open error: {}", err))
+    }
+}
+
+impl From<std::str::Utf8Error> for Error {
+    fn from(err: std::str::Utf8Error) -> Self {
+        Error::Utf8(err)
+    }
+}
+
+#[cfg(target_os = "macos")]
+impl From<security_framework::base::Error> for Error {
+    fn from(err: security_framework::base::Error) -> Self {
+        Error::Security(format!("macOS Security Framework: {}", err))
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+impl From<rusqlite::Error> for Error {
+    fn from(err: rusqlite::Error) -> Self {
+        Error::Generic(format!("SQLite error: {}", err))
     }
 }

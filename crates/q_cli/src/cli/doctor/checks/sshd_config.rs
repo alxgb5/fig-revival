@@ -8,12 +8,7 @@ use fig_util::url::AUTOCOMPLETE_SSH_WIKI;
 use owo_colors::OwoColorize;
 use regex::Regex;
 
-use crate::cli::doctor::{
-    DoctorCheck,
-    DoctorCheckType,
-    DoctorError,
-    Platform,
-};
+use crate::cli::doctor::{DoctorCheck, DoctorCheckType, DoctorError, Platform};
 
 pub struct SshdConfigCheck;
 
@@ -56,7 +51,7 @@ impl DoctorCheck<()> for SshdConfigCheck {
             Ok(config) => config,
             Err(_err) if fig_os_shim::Env::new().q_parent().is_ok() => {
                 // We will assume amzn users have this configured correctly and warn other users.
-                if is_amzn_user().await.unwrap_or_default() {
+                if is_amzn_user().await {
                     return Ok(());
                 } else {
                     return Err(DoctorError::warning(format!(

@@ -5,12 +5,7 @@ use fig_util::consts::CLI_BINARY_NAME;
 use owo_colors::OwoColorize;
 use which::which;
 
-use crate::cli::doctor::{
-    DoctorCheck,
-    DoctorCheckType,
-    DoctorError,
-    Platform,
-};
+use crate::cli::doctor::{DoctorCheck, DoctorCheckType, DoctorError, Platform};
 
 pub struct MidwayCheck;
 
@@ -21,7 +16,7 @@ impl DoctorCheck for MidwayCheck {
     }
 
     async fn get_type(&self, _: &(), _: Platform) -> DoctorCheckType {
-        let amzn_user = matches!(fig_auth::is_amzn_user().await, Ok(true));
+        let amzn_user = fig_auth::is_amzn_user().await;
         let has_mwinit = which("mwinit").is_ok();
 
         if amzn_user && has_mwinit {

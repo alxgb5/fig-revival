@@ -4,23 +4,15 @@ use std::process::ExitCode;
 use anstream::println;
 use clap::Subcommand;
 use crossterm::style::Stylize;
-use eyre::{
-    Result,
-    bail,
-};
-use fig_api_client::{
-    Client,
-    Customization,
-};
-use fig_ipc::{
-    BufferedUnixStream,
-    SendMessage,
-};
+use eyre::{Result, bail};
+// AWS fig_api_client removed - local only
+// use fig_api_client::{
+//     Client,
+//     Customization,
+// };
+use fig_ipc::{BufferedUnixStream, SendMessage};
 use fig_proto::figterm::figterm_request_message::Request;
-use fig_proto::figterm::{
-    FigtermRequestMessage,
-    InlineShellCompletionSetEnabledRequest,
-};
+use fig_proto::figterm::{FigtermRequestMessage, InlineShellCompletionSetEnabledRequest};
 use fig_util::env_var::QTERM_SESSION_ID;
 use tracing::error;
 
@@ -74,7 +66,7 @@ impl InlineSubcommand {
                 println!("Inline is {}", if enabled { "enabled" } else { "disabled" }.bold());
             },
             InlineSubcommand::SetCustomization { arn } => {
-                let customizations = Client::new().await?.list_customizations().await?;
+                let customizations = vec![] // AWS Client removed;
                 if customizations.is_empty() {
                     println!("No customizations found");
                     return Ok(ExitCode::FAILURE);
@@ -124,7 +116,7 @@ impl InlineSubcommand {
                 }
             },
             InlineSubcommand::ShowCustomizations { format } => {
-                let customizations = Client::new().await?.list_customizations().await?;
+                let customizations = vec![] // AWS Client removed;
                 format.print(
                     || {
                         if customizations.is_empty() {

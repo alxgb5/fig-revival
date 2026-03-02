@@ -1,68 +1,45 @@
 use std::fmt;
 use std::fmt::Display;
-use std::process::{
-    ExitCode,
-    exit,
-};
+use std::process::{ExitCode, exit};
 use std::time::Duration;
 
-use anstream::{
-    eprintln,
-    println,
-};
-use clap::{
-    Args,
-    Subcommand,
-};
+use anstream::{eprintln, println};
+use clap::{Args, Subcommand};
 use crossterm::style::Stylize;
 use dialoguer::Select;
-use eyre::{
-    Result,
-    bail,
-};
-use fig_api_client::list_available_profiles;
-use fig_api_client::profile::Profile;
-use fig_auth::builder_id::{
-    PollCreateToken,
-    TokenType,
-    poll_create_token,
-    start_device_authorization,
-};
+use eyre::{Result, bail};
+// AWS fig_api_client removed - local only stubs
+// use fig_api_client::list_available_profiles;
+// use fig_api_client::profile::Profile;
+
+// Local stubs for removed AWS types
+#[derive(Debug, Clone)]
+struct Profile {
+    name: String,
+    start_url: Option<String>,
+}
+
+async fn list_available_profiles() -> Result<Vec<Profile>> {
+    Ok(vec![Profile {
+        name: "local".to_string(),
+        start_url: Some("local".to_string()),
+    }])
+}
+
+use fig_auth::builder_id::{PollCreateToken, TokenType, poll_create_token, start_device_authorization};
 use fig_auth::pkce::start_pkce_authorization;
 use fig_auth::secret_store::SecretStore;
-use fig_ipc::local::{
-    login_command,
-    logout_command,
-};
-use fig_telemetry_core::{
-    QProfileSwitchIntent,
-    TelemetryResult,
-};
+use fig_ipc::local::{login_command, logout_command};
+use fig_telemetry_core::{QProfileSwitchIntent, TelemetryResult};
 use fig_util::system_info::is_remote;
-use fig_util::{
-    CLI_BINARY_NAME,
-    PRODUCT_NAME,
-};
+use fig_util::{CLI_BINARY_NAME, PRODUCT_NAME};
 use serde_json::json;
-use tokio::signal::unix::{
-    SignalKind,
-    signal,
-};
-use tracing::{
-    error,
-    info,
-};
+use tokio::signal::unix::{SignalKind, signal};
+use tracing::{error, info};
 
 use super::OutputFormat;
-use crate::util::spinner::{
-    Spinner,
-    SpinnerComponent,
-};
-use crate::util::{
-    assert_logged_in,
-    choose,
-    input,
-};
+use crate::util::spinner::{Spinner, SpinnerComponent};
+use crate::util::{assert_logged_in, choose, input};
 
 #[derive(Subcommand, Debug, PartialEq, Eq)]
 pub enum RootUserSubcommand {
