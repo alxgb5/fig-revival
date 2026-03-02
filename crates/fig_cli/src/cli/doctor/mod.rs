@@ -48,7 +48,7 @@ use tokio::io::AsyncBufReadExt;
 
 use super::app::restart_fig;
 use super::diagnostics::verify_integration;
-use crate::util::desktop::{LaunchArgs, desktop_app_running, launch_fig_desktop};
+use crate::util::desktop::{LaunchArgs, launch_fig_desktop};
 use crate::util::{app_path_from_bundle_id, glob, glob_dir, is_executable_in_path};
 
 #[derive(Debug, Args, PartialEq, Eq)]
@@ -374,6 +374,14 @@ impl DoctorCheck for AppRunningCheck {
     }
 
     async fn check(&self, _: &()) -> Result<(), DoctorError> {
+        // CLI-only mode: desktop app check disabled
+        // Fig Local Revival runs in CLI-only mode without a desktop application.
+        // The desktop app was part of the original Amazon Q architecture but is not
+        // required for basic autocomplete functionality.
+        // TODO: Re-enable if/when a desktop app is rebuilt
+        Ok(())
+
+        /* Original desktop app check - disabled for now
         if !desktop_app_running() {
             Err(DoctorError::Error {
                 reason: format!("{PRODUCT_NAME} is not running").into(),
@@ -384,6 +392,7 @@ impl DoctorCheck for AppRunningCheck {
         } else {
             Ok(())
         }
+        */
     }
 
     async fn get_type(&self, _: &(), platform: Platform) -> DoctorCheckType {
