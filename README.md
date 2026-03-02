@@ -4,7 +4,7 @@
 
 > Revival of the original Fig autocomplete experience, completely freed from cloud dependencies.
 
-[![Website](https://img.shields.io/badge/Website-fig--revival-blue)](https://alexandrebrg.github.io/fig-revival/)
+[![Website](https://img.shields.io/badge/Website-fig--revival-blue)](https://alxgb5.github.io/fig-revival/)
 [![License](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-green)](LICENSE)
 
 ---
@@ -35,7 +35,7 @@ Fig Local Revival brings back the beloved Fig terminal autocomplete experience w
 
 ```bash
 # Clone the repository
-git clone https://github.com/alexandrebrg/fig-revival.git
+git clone https://github.com/alxgb5/fig-revival.git
 cd fig-revival
 
 # Run the installer
@@ -225,9 +225,9 @@ Dual licensed under MIT OR Apache-2.0 (same as original project).
 
 ## 🌐 Links
 
-- **Website**: https://alexandrebrg.github.io/fig-revival/
-- **Repository**: https://github.com/alexandrebrg/fig-revival
-- **Issues**: https://github.com/alexandrebrg/fig-revival/issues
+- **Website**: https://alxgb5.github.io/fig-revival/
+- **Repository**: https://github.com/alxgb5/fig-revival
+- **Issues**: https://github.com/alxgb5/fig-revival/issues
 
 ---
 
