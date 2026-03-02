@@ -1,0 +1,115 @@
+name: Code Quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rustfmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo +nightly fmt --all --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq build-essential pkg-config libssl-dev protobuf-compiler
+
+      - uses: dtolnay/rust-toolchain@1.84.0
+        id: toolchain
+        with:
+          components: clippy
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: clippy-${{ hashFiles('**/Cargo.lock') }}-${{ steps.toolchain.outputs.cachekey }}
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features --locked -- -D warnings
+
+  doc:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq build-essential pkg-config libssl-dev protobuf-compiler
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: doc-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check documentation
+        run: cargo doc --no-deps --document-private-items --all-features --locked
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  unused-deps:
+    name: Unused Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq build-essential pkg-config libssl-dev protobuf-compiler
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install cargo-udeps
+        run: cargo install cargo-udeps --locked
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: udeps-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check for unused dependencies
+        run: cargo +nightly udeps --all-targets

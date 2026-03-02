@@ -108,7 +108,7 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: cargo-clippy-windows-${{ hashFiles('**/Cargo.lock') }}-${{ steps.toolchain.outputs.cachekey }}
-      - run: cargo clippy --locked -p q_cli --color always -- -D warnings
+      - run: cargo clippy --locked -p fig_cli --color always -- -D warnings
 
   cargo-test-windows:
     name: Test Windows
@@ -129,7 +129,7 @@ jobs:
             target/
           key: cargo-test-windows-${{ hashFiles('**/Cargo.lock') }}-${{ steps.toolchain.outputs.cachekey }}
       - name: Run tests
-        run: cargo test --locked -p q_cli
+        run: cargo test --locked -p fig_cli
 
   cargo-fmt:
     name: Fmt

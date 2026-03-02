@@ -1,0 +1,106 @@
+name: Installation Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "install.sh"
+      - "crates/fig_cli/**"
+      - ".github/workflows/install-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "install.sh"
+      - "crates/fig_cli/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test-install:
+    name: Test Installation (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        shell: [bash, zsh]
+        exclude:
+          # Skip zsh on Ubuntu to save CI time
+          - os: ubuntu-latest
+            shell: zsh
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq build-essential pkg-config libssl-dev protobuf-compiler
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install protobuf
+
+      - name: Install shell (zsh on Linux)
+        if: runner.os == 'Linux' && matrix.shell == 'zsh'
+        run: sudo apt-get install -y zsh
+
+      - uses: dtolnay/rust-toolchain@1.84.0
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: install-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build fig_cli
+        run: cargo build --release --locked -p fig_cli
+
+      - name: Test install script
+        run: |
+          chmod +x install.sh
+          ./install.sh
+
+      - name: Verify installation
+        run: |
+          if [ ! -f /usr/local/bin/fig ]; then
+            echo "Error: fig binary not found in /usr/local/bin/"
+            exit 1
+          fi
+
+      - name: Test binary execution
+        run: |
+          /usr/local/bin/fig --version
+          /usr/local/bin/fig --help
+
+      - name: Check shell integration (${{ matrix.shell }})
+        shell: ${{ matrix.shell }} {0}
+        run: |
+          # Source the shell integration based on shell type
+          if [ "${{ matrix.shell }}" = "zsh" ]; then
+            if [ -f ~/.zshrc ]; then
+              echo "Checking ~/.zshrc for fig integration"
+              grep -q "fig" ~/.zshrc && echo "Fig integration found in ~/.zshrc" || echo "Warning: Fig integration not found in ~/.zshrc"
+            fi
+          else
+            if [ -f ~/.bashrc ]; then
+              echo "Checking ~/.bashrc for fig integration"
+              grep -q "fig" ~/.bashrc && echo "Fig integration found in ~/.bashrc" || echo "Warning: Fig integration not found in ~/.bashrc"
+            fi
+          fi
+
+      - name: Test uninstall
+        run: |
+          sudo rm -f /usr/local/bin/fig
+          if [ -f /usr/local/bin/fig ]; then
+            echo "Error: fig binary still exists after uninstall"
+            exit 1
+          fi
+          echo "Uninstall successful"

@@ -1,23 +1,27 @@
-# 🎉 Fig Local Revival
+# 🎯 Fig Local Revival
 
-**100% Local, Zero Cloud, Pure Offline Terminal Autocomplete**
+**Privacy-First Terminal Autocomplete • 100% Local • Zero Cloud**
 
-This is a revival of the original Fig terminal autocomplete experience. All cloud/AWS dependencies have been removed to create a **privacy-first, local-only** autocomplete tool.
+> Revival of the original Fig autocomplete experience, completely freed from cloud dependencies.
 
-## ✨ What Changed?
+[![Website](https://img.shields.io/badge/Website-fig--revival-blue)](https://alexandrebrg.github.io/fig-revival/)
+[![License](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-green)](LICENSE)
 
-### ❌ Removed
+---
 
-- All cloud AI functionality
-- All cloud API calls and telemetry
-- 7 cloud-dependent crates
-- 200,000+ lines of SDK code
+## ✨ What is Fig Local Revival?
 
-### ✅ Added
+Fig Local Revival brings back the beloved Fig terminal autocomplete experience with one key difference: **everything runs locally**. No cloud, no telemetry, no data collection. Just pure, fast, privacy-first autocomplete for your terminal.
 
-- `fig_local_provider`: Pure Rust local suggestion engine
-- Privacy-first architecture (no network calls)
-- Lightweight binaries (no cloud SDK bloat)
+### Why This Fork?
+
+- 🔒 **Privacy First**: Your commands never leave your machine
+- ⚡ **Lightning Fast**: Zero network latency, instant suggestions
+- 🌐 **100% Offline**: Works anywhere, no internet required
+- 📦 **Lightweight**: Removed 200,000+ lines of cloud SDK code
+- 🎨 **Original UI**: The beautiful Fig interface you know and love
+
+---
 
 ## 🚀 Quick Start
 
@@ -30,301 +34,204 @@ This is a revival of the original Fig terminal autocomplete experience. All clou
 ### Installation
 
 ```bash
-# Clone and build
-git clone https://github.com/YOUR_USERNAME/fig-local-revival.git
+# Clone the repository
+git clone https://github.com/alexandrebrg/fig-revival.git
 cd fig-revival
-cargo build --release
 
-# Install binaries
-sudo cp target/release/q /usr/local/bin/fig
-sudo cp target/release/figterm /usr/local/bin/
-sudo cp target/release/fig_desktop /usr/local/bin/
-
-# Setup shell integration (ZSH)
-fig integrations install zsh
-
-# Restart your terminal
-exec zsh
+# Run the installer
+./install.sh
 ```
+
+That's it! Restart your terminal and start typing. 🎉
+
+---
 
 ## 🎯 Features
 
-- **Local Autocomplete**: Built-in suggestions for `git`, `npm`, `cd`, `docker`, etc.
-- **No Cloud Deps**: Works 100% offline
-- **Privacy First**: Zero telemetry, zero cloud calls
-- **Fast**: No network latency
-- **Original Fig UI**: Transparent overlay window with keyboard navigation
+| Feature            | Description                                            |
+| ------------------ | ------------------------------------------------------ |
+| **🔒 Privacy**     | Zero telemetry, zero cloud calls, zero data collection |
+| **⚡ Speed**       | Instant suggestions with no network latency            |
+| **🌐 Offline**     | Works 100% offline, perfect for air-gapped systems     |
+| **🎨 UI**          | Beautiful transparent overlay with keyboard navigation |
+| **🛠️ Commands**    | Built-in support for git, npm, docker, cd, and more    |
+| **📦 Lightweight** | Minimal footprint, no bloated SDKs                     |
 
-## 📦 Architecture
+---
+
+## 📖 How It Works
 
 ```
-Shell → figterm (PTY) → fig_proto (IPC) → fig_local_provider → fig_desktop (UI)
+Shell (zsh/bash) → figterm (PTY interceptor) → fig_proto (IPC)
+                                                    ↓
+                   fig_desktop (UI) ← fig_local_provider (suggestions)
 ```
 
-**Core Components:**
+**Architecture:**
 
-- `figterm/`: Shell interceptor and PTY manager
-- `fig_local_provider/`: Local suggestion engine (NEW)
-- `fig_desktop/`: UI overlay (tao + wry webview)
-- `fig_proto/`: IPC protocol (protobuf)
-- `fig_cli/`: CLI entry point
+- `figterm`: Intercepts your terminal buffer to detect what you're typing
+- `fig_local_provider`: Generates suggestions locally (no network calls)
+- `fig_proto`: IPC communication via protobuf
+- `fig_desktop`: Beautiful overlay UI using tao/wry
+- `fig_cli`: Command-line interface
+
+---
 
 ## 🛠️ Development
 
+### Build from Source
+
 ```bash
-# Build everything
+# Build release binaries
+cargo build --release --bin fig_cli
+
+# Build all workspace crates
 cargo build --release
 
 # Run tests
 cargo test
-
-# Build specific crate
-cargo build -p fig_local_provider
-
-# Run desktop overlay
-./target/release/fig_desktop
 ```
 
-## 📝 Git History
+### Run Locally
 
-**Commits:**
+```bash
+# Run the CLI
+cargo run --bin fig_cli
 
-1. `🔪 Purge cloud dependencies` - Remove all cloud crates
-2. `🛡️ Add local_provider` - Create offline suggestion engine
-3. `📚 Documentation` - README + installation guide
+# Run with specific commands
+cargo run --bin fig_cli -- login
+
+# Run tests for specific crate
+cargo test -p fig_cli
+```
+
+### Code Quality
+
+```bash
+# Format code
+cargo fmt
+
+# Run linter
+cargo clippy --locked --workspace -- -D warnings
+```
+
+---
+
+## 📁 Project Structure
+
+```
+fig-revival/
+├── crates/
+│   ├── fig_cli/           # CLI entry point (renamed from q_cli)
+│   ├── figterm/           # Terminal interceptor (PTY)
+│   ├── fig_desktop/       # UI overlay (tao + wry)
+│   ├── fig_local_provider/ # Local suggestion engine (NEW)
+│   ├── fig_proto/         # IPC protocol (protobuf)
+│   ├── fig_auth/          # Authentication (stubbed for local)
+│   └── fig_telemetry/     # Telemetry (no-op stubs)
+├── packages/
+│   ├── autocomplete/      # React autocomplete app
+│   └── dashboard-app/     # Dashboard React app
+├── extensions/
+│   ├── vscode/           # VSCode extension
+│   └── jetbrains/        # JetBrains plugin
+└── docs/                 # GitHub Pages landing page
+```
+
+---
 
 ## 🔧 Troubleshooting
 
-**Binary not found:**
+### Binary not found
 
 ```bash
 # Check installation
 which fig
 ls -la /usr/local/bin/fig*
+
+# Reinstall
+./install.sh
 ```
 
-**Shell integration not working:**
+### Shell integration not working
 
 ```bash
 # Reinstall integration
 fig integrations uninstall zsh
 fig integrations install zsh
+
+# Restart shell
 exec zsh
 ```
 
-## 📜 License
+### Autocomplete not appearing
 
-MIT OR Apache-2.0 (same as original project)
+1. Make sure `fig_desktop` is running: `ps aux | grep fig_desktop`
+2. Check logs: `fig debug logs`
+3. Try restarting: `fig restart`
+
+---
+
+## 📝 What Changed from Original?
+
+### ❌ Removed
+
+- All AWS/Cloud dependencies (7 crates, 200,000+ lines)
+- Amazon Q AI features (Bedrock API)
+- Cloud telemetry and analytics
+- Network authentication requirements
+
+### ✅ Added
+
+- `fig_local_provider` - Pure Rust local suggestion engine
+- Privacy-first architecture
+- Stubbed auth/telemetry (no-op)
+- Simplified codebase
+
+### 🔄 Renamed
+
+- `q_cli` → `fig_cli` (binary and crate)
+- Removed all Amazon Q branding
+
+---
 
 ## 🙏 Credits
 
-Based on the [Fig](https://github.com/withfig/autocomplete) project, continuing the original vision of local-first terminal autocomplete.
+This project is based on:
+
+- [Fig](https://github.com/withfig/autocomplete) - The original terminal autocomplete tool
+- [Amazon Q Developer CLI](https://github.com/aws/amazon-q-developer-cli) - The fork that became this revival
+
+Special thanks to the original Fig team for creating such an amazing tool.
+
+---
 
 ## ⚠️ Disclaimer
 
-**Note:** This is a community fork focused on privacy and local-only operation. All cloud/AI features have been removed.
+This is a **community fork** focused on privacy and local-only operation. All cloud/AI features have been removed.
 
-- [Ubuntu/Debian](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-ubuntu)
-- [AppImage](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-appimage)
-- [Alternative Linux builds](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-alternative-linux)
-- **Windows**:
-  - Follow the discussions for
-    [Windows](https://github.com/aws/q-command-line-discussions/discussions/15)
-  - Or [use it on Windows with WSL](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-windows)
-- **Remote machines**
-  - [Autocomplete in SSH](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-autocomplete-ssh.html)
+- ✅ Use this if you want: Privacy, offline operation, no telemetry
+- ❌ Don't use this if you need: AWS integration, cloud AI features
 
-## 🚀 Start Contributing
+For the official AWS-integrated version, see [Amazon Q Developer CLI](https://github.com/aws/amazon-q-developer-cli).
 
-### Prerequisites
+---
 
-- MacOS
-  - Xcode 13 or later
-  - Brew
+## 📜 License
 
-### 1. Clone repo
+Dual licensed under MIT OR Apache-2.0 (same as original project).
 
-```shell
-git clone https://github.com/aws/amazon-q-developer-cli-autocomplete.git
-```
+---
 
-### 2. Setup
+## 🌐 Links
 
-Hassle-free setup:
+- **Website**: https://alexandrebrg.github.io/fig-revival/
+- **Repository**: https://github.com/alexandrebrg/fig-revival
+- **Issues**: https://github.com/alexandrebrg/fig-revival/issues
 
-```shell
-npm run setup
-```
+---
 
-Or if you'd like to DIY:
-
-<details>
-<summary>Manual Setup</summary>
-<div>
-
-### 1. Install platform dependencies
-
-For Debian/Ubuntu:
-
-```shell
-sudo apt update
-sudo apt install build-essential pkg-config jq dpkg curl wget cmake clang libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libdbus-1-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev valac libibus-1.0-dev libglib2.0-dev sqlite3 libxdo-dev protobuf-compiler
-```
-
-### 2. Install Rust toolchain using [Rustup](https://rustup.rs):
-
-```shell
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup default stable
-```
-
-For pre-commit hooks, the following commands are required:
-
-```shell
-rustup toolchain install nightly
-cargo install typos-cli
-```
-
-For MacOS development make sure the right targets are installed:
-
-```shell
-rustup target add x86_64-apple-darwin
-rustup target add aarch64-apple-darwin
-```
-
-### 3. Setup Python and Node using [`mise`](https://mise.jdx.dev)
-
-Add mise integrations to your shell:
-
-For zsh:
-
-```shell
-echo 'eval "$(mise activate zsh)"' >> "${ZDOTDIR-$HOME}/.zshrc"
-```
-
-For bash:
-
-```shell
-echo 'eval "$(mise activate bash)"' >> ~/.bashrc
-```
-
-For fish:
-
-```shell
-echo 'mise activate fish | source' >> ~/.config/fish/config.fish
-```
-
-Install the Python and Node toolchains using:
-
-```shell
-mise trust
-mise install
-```
-
-### 4. Setup precommit hooks
-
-Run `pnpm` in root directory to add pre-commit hooks:
-
-```shell
-pnpm install --ignore-scripts
-```
-
+<div align="center">
+  <p><strong>Made with ❤️ for the terminal</strong></p>
+  <p>Privacy-first, cloud-free terminal autocomplete</p>
 </div>
-</details>
-
-### 3. Start Local Development
-
-To compile and view changes made to `q chat`:
-
-````shell
-cargo run --bin fig_cli
-
-# Or run with specific commands
-cargo run --bin fig_cli -- login
-
-To run tests for the Q CLI crate:
-
-```shell
-cargo test -p fig_cli
-````
-
-To format Rust files:
-
-```shell
-cargo +nightly fmt
-```
-
-To run clippy:
-
-```shell
-cargo clippy --locked --workspace --color always -- -D warnings
-```
-
-### 💡 Quick Tip for Onboarding
-
-Use Q CLI to help you onboard Q CLI!
-
-Start a `q chat` session:
-
-```shell
-q chat
-```
-
-Once inside `q chat`, you can supply project context by adding the [`codebase-summary.md`](codebase-summary.md) file:
-
-```shell
-/context add codebase-summary.md
-```
-
-This enables Q to answer onboarding questions like:
-
-- “What does this crate do?”
-
-- “Where is X implemented?”
-
-- “How do these components interact?”
-
-Great for speeding up your ramp-up and navigating the repo more effectively.
-
-## 🏗️ Project Layout
-
-Several projects live here:
-
-- [`autocomplete`](packages/autocomplete/) - The autocomplete react app
-- [`dashboard`](packages/dashboard-app/) - The dashboard react app
-- [`figterm`](crates/figterm/) - figterm, our headless terminal/pseudoterminal that
-  intercepts the user's terminal edit buffer.
-- [`fig_cli`](crates/fig_cli/) - the `fig` CLI, provides the command line interface
-- [`fig_desktop`](crates/fig_desktop/) - the Rust desktop app, uses
-  [`tao`](https://docs.rs/tao/latest/tao/)/[`wry`](https://docs.rs/wry/latest/wry/)
-  for windowing/webviews
-- [`fig_input_method`](crates/fig_input_method/) - The input method used to get cursor
-  position on macOS
-- [`vscode`](extensions/vscode/) - Contains the VSCode plugin
-- [`jetbrains`](extensions/jetbrains/) - Contains the Jetbrains plugin
-
-Other folder to be aware of
-
-- [`build-scripts/`](build-scripts/) - Contains all python scripts to build,
-  sign, and test the project on macOS and Linux
-- [`crates/`](crates/) - Contains all internal rust crates
-- [`packages/`](packages/) - Contains all internal npm packages
-- [`proto/`](proto/) -
-  [protocol buffer](https://developers.google.com/protocol-buffers/) message
-  specification for inter-process communication
-- [`tests/`](tests/) - Contain integration tests for the projects
-
-Below is a high level architecture of how the different components of the app and
-their IPC:
-
-![architecture](docs/assets/architecture.svg)
-
-## 🛡️ Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## 📜 Licensing
-
-This repo is dual licensed under MIT and Apache 2.0 licenses.
-
-“Amazon Web Services” and all related marks, including logos, graphic designs, and service names, are trademarks or trade dress of AWS in the U.S. and other countries. AWS’s trademarks and trade dress may not be used in connection with any product or service that is not AWS’s, in any manner that is likely to cause confusion among customers, or in any manner that disparages or discredits AWS.
