@@ -1,8 +1,5 @@
 #![allow(dead_code)]
-use fig_settings::sqlite::{
-    Db,
-    database,
-};
+use fig_settings::sqlite::{Db, database};
 
 use super::Secret;
 use crate::Result;

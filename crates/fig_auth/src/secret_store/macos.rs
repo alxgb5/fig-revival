@@ -1,10 +1,7 @@
 use fig_settings::sqlite::database;
 
 use super::Secret;
-use crate::{
-    Error,
-    Result,
-};
+use crate::{Error, Result};
 
 /// Path to the `security` binary
 const SECURITY_BIN: &str = "/usr/bin/security";
