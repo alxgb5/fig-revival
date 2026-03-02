@@ -20,7 +20,7 @@ pub mod builder_id {
     }
 
     impl BuilderIdToken {
-        pub async fn load() -> Result<Option<Self>> {
+        pub async fn load(_secret_store: &crate::secret_store::SecretStore, _validate: bool) -> Result<Option<Self>> {
             Ok(Some(BuilderIdToken {
                 access_token: "local-token".to_string(),
                 start_url: "local".to_string(),
@@ -29,7 +29,7 @@ pub mod builder_id {
         }
     }
 
-    #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, Clone)]
     pub struct DeviceRegistration {
         pub device_code: String,
         pub user_code: String,
@@ -38,8 +38,26 @@ pub mod builder_id {
         pub interval: i32,
     }
 
+    #[derive(Debug, Clone, Copy)]
+    pub struct Region {
+        name: &'static str,
+    }
+
+    impl Region {
+        pub fn new(name: &'static str) -> Self {
+            Region { name }
+        }
+
+        pub fn as_str(&self) -> &str {
+            self.name
+        }
+    }
+
     impl DeviceRegistration {
-        pub async fn load_from_secret_store(_start_url: &str) -> Result<Option<Self>> {
+        pub async fn load_from_secret_store(
+            _secret_store: &crate::secret_store::SecretStore,
+            _region: &Region,
+        ) -> Result<Option<Self>> {
             Ok(None)
         }
     }
