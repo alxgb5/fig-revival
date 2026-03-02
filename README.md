@@ -1,23 +1,23 @@
 # 🎉 Fig Local Revival
 
-**100% Local, Zero AWS, Pure Offline Terminal Autocomplete**
+**100% Local, Zero Cloud, Pure Offline Terminal Autocomplete**
 
-This is a fork of [amazon-q-developer-cli](https://github.com/aws/amazon-q-developer-cli) with **all AWS/Bedrock AI dependencies removed**. It brings back the original Fig experience: fast, local, privacy-first shell autocomplete.
+This is a revival of the original Fig terminal autocomplete experience. All cloud/AWS dependencies have been removed to create a **privacy-first, local-only** autocomplete tool.
 
 ## ✨ What Changed?
 
 ### ❌ Removed
 
-- All Amazon Q / AWS Bedrock AI functionality
+- All cloud AI functionality
 - All cloud API calls and telemetry
-- 7 AWS crates (`amzn-*`, `fig_aws_common`, `fig_api_client`)
-- 200,000+ lines of AWS SDK code
+- 7 cloud-dependent crates
+- 200,000+ lines of SDK code
 
 ### ✅ Added
 
 - `fig_local_provider`: Pure Rust local suggestion engine
 - Privacy-first architecture (no network calls)
-- Lightweight binaries (no AWS SDK bloat)
+- Lightweight binaries (no cloud SDK bloat)
 
 ## 🚀 Quick Start
 
@@ -51,7 +51,7 @@ exec zsh
 
 - **Local Autocomplete**: Built-in suggestions for `git`, `npm`, `cd`, `docker`, etc.
 - **No Cloud Deps**: Works 100% offline
-- **Privacy First**: Zero telemetry, zero AWS
+- **Privacy First**: Zero telemetry, zero cloud calls
 - **Fast**: No network latency
 - **Original Fig UI**: Transparent overlay window with keyboard navigation
 
@@ -67,7 +67,7 @@ Shell → figterm (PTY) → fig_proto (IPC) → fig_local_provider → fig_deskt
 - `fig_local_provider/`: Local suggestion engine (NEW)
 - `fig_desktop/`: UI overlay (tao + wry webview)
 - `fig_proto/`: IPC protocol (protobuf)
-- `q_cli/`: CLI entry point
+- `fig_cli/`: CLI entry point
 
 ## 🛠️ Development
 
@@ -89,7 +89,7 @@ cargo build -p fig_local_provider
 
 **Commits:**
 
-1. `🔪 Purge Amazon Q/AWS dependencies` - Remove all AWS crates
+1. `🔪 Purge cloud dependencies` - Remove all cloud crates
 2. `🛡️ Add local_provider` - Create offline suggestion engine
 3. `📚 Documentation` - README + installation guide
 
@@ -118,11 +118,11 @@ MIT OR Apache-2.0 (same as original project)
 
 ## 🙏 Credits
 
-Based on [Amazon Q Developer CLI](https://github.com/aws/amazon-q-developer-cli), originally forked from the [Fig](https://github.com/withfig/autocomplete) project.
+Based on the [Fig](https://github.com/withfig/autocomplete) project, continuing the original vision of local-first terminal autocomplete.
 
----
+## ⚠️ Disclaimer
 
-**⚠️ Note:** This fork removes all AI/cloud features. For AWS integration, use the [official Amazon Q CLI](https://github.com/aws/amazon-q-developer-cli).
+**Note:** This is a community fork focused on privacy and local-only operation. All cloud/AI features have been removed.
 
 - [Ubuntu/Debian](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-ubuntu)
 - [AppImage](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html#command-line-installing-appimage)
@@ -236,17 +236,17 @@ pnpm install --ignore-scripts
 
 To compile and view changes made to `q chat`:
 
-```shell
-cargo run --bin q_cli
-```
+````shell
+cargo run --bin fig_cli
 
-> If you are working on other q commands, just append `-- <command name>`. For example, to run `q login`, you can run `cargo run --bin q_cli -- login`
+# Or run with specific commands
+cargo run --bin fig_cli -- login
 
 To run tests for the Q CLI crate:
 
 ```shell
-cargo test -p q_cli
-```
+cargo test -p fig_cli
+````
 
 To format Rust files:
 
@@ -293,18 +293,15 @@ Several projects live here:
 - [`autocomplete`](packages/autocomplete/) - The autocomplete react app
 - [`dashboard`](packages/dashboard-app/) - The dashboard react app
 - [`figterm`](crates/figterm/) - figterm, our headless terminal/pseudoterminal that
-  intercepts the user’s terminal edit buffer.
-- [`q_cli`](crates/q_cli/) - the `q` CLI, allows users to interface with Amazon Q Developer from
-  the command line
+  intercepts the user's terminal edit buffer.
+- [`fig_cli`](crates/fig_cli/) - the `fig` CLI, provides the command line interface
 - [`fig_desktop`](crates/fig_desktop/) - the Rust desktop app, uses
   [`tao`](https://docs.rs/tao/latest/tao/)/[`wry`](https://docs.rs/wry/latest/wry/)
   for windowing/webviews
 - [`fig_input_method`](crates/fig_input_method/) - The input method used to get cursor
   position on macOS
-- [`vscode`](extensions/vscode/) - Contains the VSCode plugin needed
-  for the Amazon Q Developer for command line to work in VSCode
-- [`jetbrains`](extensions/jetbrains/) - Contains the VSCode plugin
-  needed for the Amazon Q Developer for command line to work in Jetbrains IDEs
+- [`vscode`](extensions/vscode/) - Contains the VSCode plugin
+- [`jetbrains`](extensions/jetbrains/) - Contains the Jetbrains plugin
 
 Other folder to be aware of
 

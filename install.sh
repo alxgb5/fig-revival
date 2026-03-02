@@ -26,16 +26,16 @@ fi
 
 # Build release binaries
 echo "🔨 Building release binaries (this may take a few minutes)..."
-cargo build --release --bin q 2>&1 | grep -E "(Compiling|Finished|error)" || true
+cargo build --release --bin fig_cli 2>&1 | grep -E "(Compiling|Finished|error)" || true
 
-if [ ! -f "target/release/q" ]; then
+if [ ! -f "target/release/fig_cli" ]; then
     echo "❌ Build failed. Check errors above."
     exit 1
 fi
 
 # Install binaries
 echo "📦 Installing binaries to /usr/local/bin..."
-sudo cp target/release/q /usr/local/bin/fig
+sudo cp target/release/fig_cli /usr/local/bin/fig
 sudo cp target/release/figterm /usr/local/bin/ 2>/dev/null || echo "⚠️  figterm not built yet"
 sudo cp target/release/fig_desktop /usr/local/bin/ 2>/dev/null || echo "⚠️  fig_desktop not built yet"
 

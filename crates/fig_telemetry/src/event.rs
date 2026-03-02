@@ -13,7 +13,7 @@ impl AppTelemetryEvent {
             created_time: Some(std::time::SystemTime::now()),
             credential_start_url: match start_url {
                 Some(start_url) => Some(start_url),
-                None => fig_auth::builder_id_token().await.ok(),
+                None => None, // No AWS token in local version
             },
         })
     }
